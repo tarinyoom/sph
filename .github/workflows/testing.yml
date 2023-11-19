@@ -1,0 +1,20 @@
+name: testing
+
+on:
+  push:
+    branches: [ "**" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    env:
+      CARGO_TERM_COLOR: always
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: check-formatting
+      run: cargo fmt --check
+    - name: run-tests
+      run: cargo test --release --verbose
+
