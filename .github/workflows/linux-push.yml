@@ -13,10 +13,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: setup
+    - name: set-up
       run: sudo apt-get install g++ pkg-config libx11-dev libasound2-dev libudev-dev
     - name: check-formatting
-      run: cargo fmt --check
+      run: cargo fmt --check --verbose
+    - name: build-app
+      run: cargo build --release --verbose
     - name: run-tests
       run: cargo test --release --verbose
 
