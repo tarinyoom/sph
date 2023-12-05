@@ -29,7 +29,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, add_people)
         .add_systems(Update, (hello_world, greet_people))
-                     .run();
+        .run();
 }
 
 #[cfg(test)]
