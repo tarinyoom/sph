@@ -18,12 +18,14 @@ jobs:
         run: cargo install wasm-bindgen-cli
       - name: build
         run: cargo build --release --target wasm32-unknown-unknown
+      - name: prepare-dir
+        run: mkdir -p ./out/assets/ && cp ./public/index.html ./out/
       - name: package
-        run: wasm-bindgen --out-dir ./out/ --target web ./target/
+        run: wasm-bindgen --out-dir ./out/ --no-typescript --target web ./target/wasm32-unknown-unknown/release/browser-sph.wasm        
       - name: publish-pages
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${CF_ACCOUNT_ID}
           projectName: browser-sph
-          directory: .
+          directory: ./out/
