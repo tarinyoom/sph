@@ -12,6 +12,12 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3
+      - name: get-wasm
+        run: rustup target install wasm32-unknown-unknown
+      - name: install-wasm
+        run: cargo install wasm-server-runner
+      - name: target-wasm
+        run: export CARGO_TARGET_WASM32_UNKNOWN_UNKNOWN_RUNNER=wasm-server-runner
       - name: build
         run: cargo build --release --target wasm32-unknown-unknown
       - name: package
