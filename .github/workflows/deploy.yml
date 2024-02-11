@@ -5,6 +5,7 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    environment: deploy
     permissions:
       contents: read
       deployments: write
@@ -18,10 +19,8 @@ jobs:
         run: cargo install wasm-bindgen-cli
       - name: build
         run: cargo build --release --target wasm32-unknown-unknown
-      - name: prepare-dir
-        run: mkdir -p ./out/assets/ && cp ./public/index.html ./out/
       - name: package
-        run: wasm-bindgen --out-dir ./out/ --no-typescript --target web ./target/wasm32-unknown-unknown/release/browser-sph.wasm        
+        run: pwsh prepare-dist.ps1
       - name: publish-pages
         uses: cloudflare/pages-action@v1
         with:
