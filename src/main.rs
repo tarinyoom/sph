@@ -1,7 +1,7 @@
-mod physics;
+mod fluid;
 mod types;
 
-use physics::update_particle;
+use fluid::update_particle;
 use types::{Bounds, Particle};
 
 use rand::prelude::*;
