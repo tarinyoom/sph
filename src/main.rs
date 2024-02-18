@@ -2,7 +2,7 @@ mod fluid;
 mod types;
 
 use fluid::update_particle;
-use types::{Bounds, FluidParams, Particle};
+use types::{Bounds, FluidParams, Particle, SpatialHash};
 
 use rand::prelude::*;
 use std::f32::consts::PI;
@@ -11,6 +11,7 @@ use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
 const DEFAULT_FLUID_PARAMS: FluidParams = FluidParams {
     n: 1000,
+    r: 5.0,
     speed: 25.0,
     bounds: Bounds {
         min: Vec2::new(-500.0, -300.0),
@@ -62,16 +63,24 @@ fn setup(
         ));
     }
 
+    commands.insert_resource(SpatialHash::new(&fluid));
     commands.spawn(Camera2dBundle::default());
 }
 
 fn update_particles(
-    mut cubes: Query<(&mut Transform, &mut Particle)>,
+    mut particles: Query<(Entity, &mut Transform, &mut Particle)>,
     timer: Res<Time>,
     fluid: Res<FluidParams>,
+    mut grid: ResMut<SpatialHash>,
 ) {
-    for (mut transform, mut p) in &mut cubes {
+    for (_, mut transform, mut p) in &mut particles {
         *p = update_particle(&p, &fluid.bounds, timer.delta_seconds());
         transform.translation = p.position.extend(0.0);
+    }
+
+    grid.clear();
+
+    for (id, _, p) in &particles {
+        grid.insert(id, &p.position);
     }
 }
