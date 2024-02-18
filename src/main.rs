@@ -1,3 +1,9 @@
+mod physics;
+mod types;
+
+use physics::update_particle;
+use types::{Bounds, Particle};
+
 use rand::prelude::*;
 use std::f32::consts::PI;
 
@@ -8,12 +14,10 @@ const RADIUS: f32 = 1.0;
 const SPEED: f32 = 25.0;
 const MIN_BOUNDS: [f32; 2] = [-500.0, -300.0];
 const MAX_BOUNDS: [f32; 2] = [500.0, 300.0];
-
-#[derive(Component, Debug, PartialEq)]
-struct Particle {
-    pub position: Vec2,
-    pub velocity: Vec2,
-}
+const BOUNDS: Bounds = Bounds {
+    min: Vec2::new(MIN_BOUNDS[0] + RADIUS, MIN_BOUNDS[1] + RADIUS),
+    max: Vec2::new(MAX_BOUNDS[0] - RADIUS, MAX_BOUNDS[1] - RADIUS),
+};
 
 fn main() {
     App::new()
@@ -60,69 +64,9 @@ fn setup(
     commands.spawn(Camera2dBundle::default());
 }
 
-fn constrain_1d(x: f32, v: f32, lower: f32, upper: f32) -> (f32, f32) {
-    if x < lower {
-        (lower, -v)
-    } else if x > upper {
-        (upper, -v)
-    } else {
-        (x, v)
-    }
-}
-
-fn update_particle(p: &Particle, h: f32) -> Particle {
-    let mut x = p.position + p.velocity * h;
-    let mut v = p.velocity;
-
-    for i in 0..2 {
-        (x[i], v[i]) = constrain_1d(x[i], v[i], MIN_BOUNDS[i] + RADIUS, MAX_BOUNDS[i] - RADIUS);
-    }
-
-    Particle {
-        position: x,
-        velocity: v,
-    }
-}
-
 fn update_particles(mut cubes: Query<(&mut Transform, &mut Particle)>, timer: Res<Time>) {
     for (mut transform, mut p) in &mut cubes {
-        *p = update_particle(&p, timer.delta_seconds());
+        *p = update_particle(&p, &BOUNDS, timer.delta_seconds());
         transform.translation = p.position.extend(0.0);
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_constrain_1d() {
-        assert_eq!(constrain_1d(-3.0, -1.0, -2.0, 2.0), (-2.0, 1.0));
-        assert_eq!(constrain_1d(3.0, -1.0, -2.0, 2.0), (2.0, 1.0));
-        assert_eq!(constrain_1d(0.0, -1.0, -2.0, 2.0), (0.0, -1.0));
-    }
-
-    /// position, velocity before, then position, velocity after, then timestep
-    fn test_update_particle_helper(params: &[f32; 9]) {
-        let before = Particle {
-            position: Vec2::new(params[0], params[1]),
-            velocity: Vec2::new(params[2], params[3]),
-        };
-        let after = Particle {
-            position: Vec2::new(params[4], params[5]),
-            velocity: Vec2::new(params[6], params[7]),
-        };
-        assert_eq!(update_particle(&before, 0.1), after);
-    }
-
-    #[test]
-    fn test_update_particle() {
-        let no_collision = [0.0, 0.0, 2.0, 2.0, 0.2, 0.2, 2.0, 2.0, 0.1];
-        test_update_particle_helper(&no_collision);
-
-        let collision = [
-            -490.0, 290.0, -100.0, 100.0, -499.0, 299.0, 100.0, -100.0, 0.1,
-        ];
-        test_update_particle_helper(&collision);
     }
 }
