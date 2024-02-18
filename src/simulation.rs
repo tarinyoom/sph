@@ -1,11 +1,11 @@
-use crate::types::{Bounds, Particle};
+use crate::types::{Fluid, Particle};
 
-pub fn update_particle(p: &Particle, b: &Bounds, h: f32) -> Particle {
+pub fn update_particle(p: &Particle, f: &Fluid, h: f32) -> Particle {
     let mut x = p.position + p.velocity * h;
     let mut v = p.velocity;
 
     for i in 0..2 {
-        (x[i], v[i]) = constrain_1d(x[i], v[i], b.min[i], b.max[i]);
+        (x[i], v[i]) = constrain_1d(x[i], v[i], f.bounds_min[i], f.bounds_max[i]);
     }
 
     Particle {
@@ -38,7 +38,7 @@ mod tests {
 
     /// position, velocity before (4 flaots),
     /// then position, velocity after (4 floats),
-    fn test_update_particle_helper(ps: &[f32; 8], bounds: &Bounds, h: f32) {
+    fn test_update_particle_helper(ps: &[f32; 8], f: &Fluid, h: f32) {
         let before = Particle {
             position: Vec2::new(ps[0], ps[1]),
             velocity: Vec2::new(ps[2], ps[3]),
@@ -49,20 +49,25 @@ mod tests {
             velocity: Vec2::new(ps[6], ps[7]),
         };
 
-        assert_eq!(update_particle(&before, &bounds, h), after);
+        assert_eq!(update_particle(&before, &f, h), after);
     }
 
     #[test]
     fn test_update_particle() {
-        let bounds = Bounds {
-            min: Vec2::new(-500.0, -300.0),
-            max: Vec2::new(500.0, 300.0),
+        let fluid = Fluid {
+            n: 0,              // dummy
+            radius: 0.0,       // dummy
+            speed: 0.0,        // dummy
+            grid_dims: [0, 0], // dummy
+
+            bounds_min: [-500.0, -300.0],
+            bounds_max: [500.0, 300.0],
         };
 
         let no_collision = [0.0, 0.0, 2.0, 2.0, 0.2, 0.2, 2.0, 2.0];
-        test_update_particle_helper(&no_collision, &bounds, 0.1);
+        test_update_particle_helper(&no_collision, &fluid, 0.1);
 
         let collision = [-490.0, 290.0, -200.0, 200.0, -500.0, 300.0, 200.0, -200.0];
-        test_update_particle_helper(&collision, &bounds, 0.1);
+        test_update_particle_helper(&collision, &fluid, 0.1);
     }
 }
