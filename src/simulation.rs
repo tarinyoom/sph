@@ -1,8 +1,42 @@
+use std::collections::HashMap;
+
+use bevy::prelude::{Entity, Vec2};
+
 use crate::types::{Fluid, Particle};
 
-pub fn update_particle(p: &Particle, f: &Fluid, h: f32) -> Particle {
+fn smooth(d: f32) -> f32 {
+    if d > 100.0 {
+        0.0
+    } else {
+        1.0 - 0.01 * d
+    }
+}
+
+pub fn update_particle(
+    id: Entity,
+    p: &Particle,
+    f: &Fluid,
+    h: f32,
+    grid: &Vec<Vec<Entity>>,
+    data: &HashMap<Entity, Vec2>,
+) -> Particle {
     let mut x = p.position + p.velocity * h;
     let mut v = p.velocity;
+
+    for other_id in &grid[f.grid_idx(&p)] {
+        if other_id != &id {
+            match data.get(other_id) {
+                Some(other_x) => {
+                    let mag = smooth(other_x.distance(p.position));
+                    let dir = (p.position - *other_x)
+                        .try_normalize()
+                        .unwrap_or(Vec2::ZERO);
+                    v += mag * dir;
+                }
+                None => {}
+            }
+        }
+    }
 
     for i in 0..2 {
         (x[i], v[i]) = constrain_1d(x[i], v[i], f.bounds_min[i], f.bounds_max[i]);
@@ -49,7 +83,13 @@ mod tests {
             velocity: Vec2::new(ps[6], ps[7]),
         };
 
-        assert_eq!(update_particle(&before, &f, h), after);
+        let grid: Vec<Vec<Entity>> = vec![];
+        let map: HashMap<Entity, Vec2> = HashMap::new();
+
+        assert_eq!(
+            update_particle(Entity::from_raw(0), &before, &f, h, &grid, &map),
+            after
+        );
     }
 
     #[test]

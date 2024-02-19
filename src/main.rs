@@ -2,6 +2,7 @@ mod simulation;
 mod types;
 
 use rand::prelude::*;
+use std::collections::HashMap;
 use std::f32::consts::PI;
 
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
@@ -9,13 +10,11 @@ use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use simulation::update_particle;
 use types::{Fluid, Particle};
 
-const N: u32 = 1000;
-const RADIUS: f32 = 5.0;
+const N: u32 = 5;
+const RADIUS: f32 = 100.0;
 const SPEED: f32 = 25.0;
-const X_MIN: f32 = -100.0;
-const X_MAX: f32 = 100.0;
-const Y_MIN: f32 = -100.0;
-const Y_MAX: f32 = 100.0;
+const BOUNDS_MIN: [f32; 2] = [-100.0, -100.0];
+const BOUNDS_MAX: [f32; 2] = [100.0, 100.0];
 
 fn main() {
     App::new()
@@ -47,22 +46,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    let bounds_min = [X_MIN, Y_MIN];
-    let bounds_max = [X_MAX, Y_MAX];
-
-    let mut grid_dims: [usize; 2] = [0, 0];
-    for i in 0..grid_dims.len() {
-        grid_dims[i] = ((bounds_max[i] - bounds_min[i]) / RADIUS) as usize;
-    }
-
-    let fluid = Fluid {
-        n: N,
-        radius: RADIUS,
-        speed: SPEED,
-        bounds_min: bounds_min,
-        bounds_max: bounds_max,
-        grid_dims: grid_dims,
-    };
+    let fluid = Fluid::new(N, RADIUS, SPEED, BOUNDS_MIN, BOUNDS_MAX);
 
     for _ in 0..fluid.n {
         commands.spawn((
@@ -81,12 +65,21 @@ fn setup(
 }
 
 fn update_particles(
-    mut particles: Query<(Entity, &mut Transform, &mut Particle)>,
+    mut particle_data: Query<(Entity, &mut Transform, &mut Particle)>,
     timer: Res<Time>,
     fluid: Res<Fluid>,
 ) {
-    for (_, mut transform, mut p) in &mut particles {
-        *p = update_particle(&p, &fluid, timer.delta_seconds());
+    let mut grid: Vec<Vec<Entity>> = vec![vec![]; fluid.grid_dims[0] * fluid.grid_dims[1]];
+    let mut map: HashMap<Entity, Vec2> = HashMap::new();
+
+    for (id, _, p) in &particle_data {
+        let idx = fluid.grid_idx(&p);
+        map.insert(id, p.position);
+        grid[idx].push(id);
+    }
+
+    for (id, mut transform, mut p) in &mut particle_data {
+        *p = update_particle(id, &p, &fluid, timer.delta_seconds(), &grid, &map);
         transform.translation = p.position.extend(0.0);
     }
 }
