@@ -10,8 +10,8 @@ use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use simulation::update_particle;
 use types::{Fluid, Particle};
 
-const N: u32 = 5;
-const RADIUS: f32 = 100.0;
+const N: u32 = 200;
+const RADIUS: f32 = 5.0;
 const SPEED: f32 = 25.0;
 const BOUNDS_MIN: [f32; 2] = [-100.0, -100.0];
 const BOUNDS_MAX: [f32; 2] = [100.0, 100.0];

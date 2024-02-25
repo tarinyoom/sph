@@ -1,15 +1,14 @@
 use std::collections::HashMap;
+use std::f32::consts::PI;
 
 use bevy::prelude::{Entity, Vec2};
 
 use crate::types::{Fluid, Particle};
 
-fn smooth(d: f32) -> f32 {
-    if d > 100.0 {
-        0.0
-    } else {
-        1.0 - 0.01 * d
-    }
+fn smooth(d: f32, r: f32) -> f32 {
+    let volume = PI * r.powf(8.0) / 4.0;
+    let value = (r * r - d * d).max(0.0);
+    500.0 * value * value * value / volume
 }
 
 pub fn update_particle(
@@ -27,7 +26,7 @@ pub fn update_particle(
         if other_id != &id {
             match data.get(other_id) {
                 Some(other_x) => {
-                    let mag = smooth(other_x.distance(p.position));
+                    let mag = smooth(other_x.distance(p.position), f.radius);
                     let dir = (p.position - *other_x)
                         .try_normalize()
                         .unwrap_or(Vec2::ZERO);
