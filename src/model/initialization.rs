@@ -1,15 +1,12 @@
-use super::Particle;
+use super::{Globals, Particle};
 use rand::prelude::ThreadRng;
 use rand::Rng;
 use std::f32::consts::PI;
 
-const BOUNDS_MIN: [f32; 2] = [-100.0, -100.0];
-const BOUNDS_MAX: [f32; 2] = [100.0, 100.0];
-
-pub fn generate_particle(rng: &mut ThreadRng) -> Particle {
-    let x: Vec<f32> = (BOUNDS_MIN)
+pub fn generate_particle(rng: &mut ThreadRng, g: &Globals) -> Particle {
+    let x: Vec<f32> = (g.bounds_min.clone())
         .into_iter()
-        .zip(BOUNDS_MAX)
+        .zip(g.bounds_max.clone())
         .map(|(min, max)| (rng.gen::<f32>() - 0.5) * (max - min))
         .collect();
     let v: Vec<f32> = (&x)
