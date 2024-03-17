@@ -1,5 +1,9 @@
 mod game_component;
 mod particle_bundle;
+mod setup;
+mod update;
 
-pub use game_component::GameComponent;
-pub use particle_bundle::ParticleBundle;
+use game_component::GameComponent;
+use particle_bundle::ParticleBundle;
+pub use setup::make_setup;
+pub use update::make_update_system;
