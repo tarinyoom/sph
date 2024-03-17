@@ -1,7 +1,7 @@
 mod generate;
 mod particle;
-mod step;
+mod timestep;
 
 pub use generate::generate_particle;
 pub use particle::Particle;
-pub use step::step;
+pub use timestep::step;
