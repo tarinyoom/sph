@@ -16,5 +16,5 @@ fn main() {
 
 fn unwrap(p: &Particle) -> Vec3 {
     let x = &p.position;
-    Vec3::new(x[0], x[1], 0.0)
+    Vec3::new(x[0] as f32, x[1] as f32, 0.0)
 }

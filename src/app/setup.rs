@@ -14,7 +14,7 @@ where
     move |mut commands, mut meshes, mut materials| {
         let g = G::default();
         let mut rng: ThreadRng = rand::thread_rng();
-        for _ in 0..5 {
+        for _ in 0..100 {
             let p: ParticleBundle<P> = ParticleBundle {
                 mesh: meshes.add(shape::Circle::new(2.).into()).into(),
                 material: materials.add(ColorMaterial::from(Color::TURQUOISE)),

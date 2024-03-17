@@ -1,4 +1,4 @@
 pub struct Particle {
-    pub position: Vec<f32>,
-    pub velocity: Vec<f32>,
+    pub position: Vec<f64>,
+    pub velocity: Vec<f64>,
 }

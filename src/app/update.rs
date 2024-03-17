@@ -2,7 +2,7 @@ use super::{GameComponent, GameResource};
 use bevy::prelude::{Entity, Query, Res, Transform, Vec3};
 
 pub fn make_update_system<P, G>(
-    step: impl Fn(&P, f32, &G) -> P,
+    step: impl Fn(&P, f64, &G) -> P,
     unwrap: impl Fn(&P) -> Vec3,
 ) -> impl Fn(Query<(Entity, &mut Transform, &mut GameComponent<P>)>, Res<GameResource<G>>)
 where

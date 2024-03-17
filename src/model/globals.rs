@@ -1,6 +1,6 @@
 pub struct Globals {
-    pub bounds_min: Vec<f32>,
-    pub bounds_max: Vec<f32>,
+    pub bounds_min: Vec<f64>,
+    pub bounds_max: Vec<f64>,
 }
 
 impl Default for Globals {
