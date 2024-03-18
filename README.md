@@ -1,2 +1,2 @@
-# browser-sph
-Smoothed-particle hydrodynamics in the browser!
+# SPH
+Physical fluid simulation using smoothed-particle hydrodynamics (SPH). Made in rust, using the bevy engine.
