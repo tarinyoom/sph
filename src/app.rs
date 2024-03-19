@@ -8,4 +8,4 @@ use game_component::GameComponent;
 pub use game_resource::GameResource;
 use particle_bundle::ParticleBundle;
 pub use startup::startup;
-pub use update::update;
+pub use update::{update_particles, update_transforms};

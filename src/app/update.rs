@@ -4,13 +4,19 @@ use super::{GameComponent, GameResource};
 
 use crate::{step, Globals, Particle};
 
-pub fn update(
-    mut particles: Query<(Entity, &mut Transform, &mut GameComponent<Particle>)>,
-    mut globals: Res<GameResource<Globals>>,
+pub fn update_particles(
+    mut particles: Query<&mut GameComponent<Particle>>,
+    globals: Res<GameResource<Globals>>,
+    time: Res<Time<Fixed>>,
 ) {
     let g = &globals.into_inner().val;
-    for (_, mut transform, mut p) in &mut particles {
-        p.val = step(&p.val, 0.1, g);
+    for mut p in &mut particles {
+        p.val = step(&p.val, (*time).delta_seconds_f64(), g);
+    }
+}
+
+pub fn update_transforms(mut particles: Query<(&mut Transform, &mut GameComponent<Particle>)>) {
+    for (mut transform, p) in &mut particles {
         transform.translation = unwrap(&p.val);
     }
 }
