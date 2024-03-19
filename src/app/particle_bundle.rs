@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::sprite::{ColorMaterial, Mesh2dHandle};
 
-use crate::Particle;
+use crate::model::Particle;
 
 use super::GameComponent;
 

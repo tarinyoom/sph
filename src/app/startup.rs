@@ -3,7 +3,7 @@ use rand::prelude::ThreadRng;
 
 use super::{GameComponent, GameResource, ParticleBundle};
 
-use crate::{generate_particle, Globals};
+use crate::model::{generate_particle, Globals, Grid};
 
 pub fn startup(
     mut commands: Commands,
@@ -12,7 +12,7 @@ pub fn startup(
 ) {
     let globals = Globals::default();
     let mut rng: ThreadRng = rand::thread_rng();
-    for _ in 0..100 {
+    for _ in 0..5 {
         let p: ParticleBundle = ParticleBundle {
             mesh: meshes.add(shape::Circle::new(2.).into()).into(),
             material: materials.add(ColorMaterial::from(Color::TURQUOISE)),
@@ -28,5 +28,8 @@ pub fn startup(
         commands.spawn(p);
     }
     commands.insert_resource(GameResource { val: globals });
+    commands.insert_resource(GameResource {
+        val: Grid::<Entity>::new(),
+    });
     commands.spawn(Camera2dBundle::default());
 }

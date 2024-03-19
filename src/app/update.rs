@@ -2,16 +2,29 @@ use bevy::prelude::*;
 
 use super::{GameComponent, GameResource};
 
-use crate::{step, Globals, Particle};
+use crate::model::{step, Globals, Grid, Particle};
+
+pub fn update_grid(
+    particles: Query<(Entity, &GameComponent<Particle>)>,
+    mut grid: ResMut<GameResource<Grid<Entity>>>,
+) {
+    grid.val = Grid {
+        elems: particles
+            .iter()
+            .map(|(id, comp)| (id, comp.val.clone()))
+            .collect(),
+    };
+}
 
 pub fn update_particles(
-    mut particles: Query<&mut GameComponent<Particle>>,
+    mut particles: Query<(Entity, &mut GameComponent<Particle>)>,
     globals: Res<GameResource<Globals>>,
     time: Res<Time<Fixed>>,
+    grid: Res<GameResource<Grid<Entity>>>,
 ) {
     let g = &globals.into_inner().val;
-    for mut p in &mut particles {
-        p.val = step(&p.val, (*time).delta_seconds_f64(), g);
+    for (e, mut p) in &mut particles {
+        p.val = step(e, &p.val, (*time).delta_seconds_f64(), g, &grid.val);
     }
 }
 

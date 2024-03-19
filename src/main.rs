@@ -3,8 +3,7 @@ mod model;
 
 use bevy::prelude::*;
 
-use app::{startup, update_particles, update_transforms};
-use model::{generate_particle, step, Globals, Particle};
+use app::{startup, update_grid, update_particles, update_transforms};
 
 fn main() {
     App::new()
@@ -12,7 +11,11 @@ fn main() {
         .add_systems(Startup, startup)
         .add_systems(
             FixedUpdate,
-            (update_particles, update_transforms.after(update_particles)),
+            (
+                update_grid,
+                update_particles.after(update_grid),
+                update_transforms.after(update_particles),
+            ),
         )
         .run();
 }
