@@ -7,8 +7,8 @@ pub struct Globals {
 impl Default for Globals {
     fn default() -> Self {
         Self {
-            bounds_min: vec![-300.0, -200.0],
-            bounds_max: vec![300.0, 200.0],
+            bounds_min: vec![-500.0, -250.0],
+            bounds_max: vec![500.0, 250.0],
             radius: 75.0,
         }
     }
