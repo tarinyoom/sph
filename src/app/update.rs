@@ -28,9 +28,27 @@ pub fn update_particles(
     }
 }
 
-pub fn update_transforms(mut particles: Query<(&mut Transform, &mut GameComponent<Particle>)>) {
-    for (mut transform, p) in &mut particles {
+fn make_color(rho: f64) -> Color {
+    // from 0 to 10
+    let r = (rho as f32 * 400.0).min(1.0);
+    let gb = (1.0 - r) / 2.0;
+    return Color::rgb(r, gb, gb);
+}
+
+pub fn update_transforms(
+    mut particles: Query<(
+        &mut Transform,
+        &Handle<ColorMaterial>,
+        &mut GameComponent<Particle>,
+    )>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    for (mut transform, color, p) in &mut particles {
         transform.translation = unwrap(&p.val);
+        let color_mat = materials.get_mut(&*color).unwrap();
+        color_mat.color = make_color(p.val.density);
+        // 0, 1 ,1
+        // 1, .5 ,.5
     }
 }
 
