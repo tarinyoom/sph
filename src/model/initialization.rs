@@ -12,7 +12,7 @@ pub fn generate_particle(rng: &mut ThreadRng, g: &Globals) -> Particle {
         .collect();
     let v: Vec<f64> = (&x)
         .iter()
-        .map(|_| f64::sin(rng.gen::<f64>() * 2.0 * PI) * 5.0)
+        .map(|_| f64::sin(rng.gen::<f64>() * 2.0 * PI) * 50.0)
         .collect();
     Particle {
         position: x,

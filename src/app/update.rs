@@ -30,7 +30,7 @@ pub fn update_particles(
 
 fn make_color(rho: f64) -> Color {
     // from 0 to 10
-    let r = (rho as f32 * 400.0).min(1.0);
+    let r = (rho as f32 * 2400.0).min(1.0);
     let gb = (1.0 - r) / 2.0;
     return Color::rgb(r, gb, gb);
 }
