@@ -3,18 +3,19 @@ mod model;
 
 use bevy::prelude::*;
 
-use app::{make_setup, make_update_system};
-use model::{generate_particle, step, Globals, Particle};
+use app::{startup, update_grid, update_particles, update_transforms};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_systems(Startup, make_setup::<Particle, Globals>(generate_particle))
-        .add_systems(Update, make_update_system(step, unwrap))
+        .add_systems(Startup, startup)
+        .add_systems(
+            FixedUpdate,
+            (
+                update_grid,
+                update_particles.after(update_grid),
+                update_transforms.after(update_particles),
+            ),
+        )
         .run();
-}
-
-fn unwrap(p: &Particle) -> Vec3 {
-    let x = &p.position;
-    Vec3::new(x[0] as f32, x[1] as f32, 0.0)
 }
