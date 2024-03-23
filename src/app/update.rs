@@ -28,7 +28,7 @@ pub fn update_particles(
 fn make_color(rho: f32, mean: f32, stdev: f32) -> Color {
     let normalized = ((rho - mean) / stdev) as f32;
     let r = (normalized * 0.25 + 0.5).min(1.0).max(0.0);
-    let gb = (1.0 - r) / 2.0;
+    let gb = (1.0 - r) * 0.7;
     return Color::rgb(r, gb, gb);
 }
 
