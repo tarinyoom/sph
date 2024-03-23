@@ -1,4 +1,4 @@
-use std::f64::consts::PI;
+use std::{f64::consts::PI, hash::Hash};
 
 use itertools::izip;
 
@@ -31,24 +31,14 @@ fn kernel(a: &Particle, b: &Particle, r: f64) -> f64 {
     value * value * value / volume
 }
 
-fn contribution<E: PartialEq>(a: (E, &Particle), b: (E, &Particle), r: f64) -> f64 {
-    let (e_a, p_a) = a;
-    let (e_b, p_b) = b;
-    if e_a != e_b {
-        kernel(p_a, p_b, r)
-    } else {
-        0.0
-    }
-}
-
-fn density<E: PartialEq + Copy>(e: E, p: &Particle, grid: &Grid<E>, r: f64) -> f64 {
-    grid.elems
+fn density<E: Eq + Copy + Hash>(e: E, p: &Particle, grid: &Grid<E>, r: f64) -> f64 {
+    grid.neighbors(e)
         .iter()
-        .map(|(e_, p_)| contribution((e, p), (*e_, p_), r))
+        .map(|p_| kernel(p, p_, r))
         .fold(0.0, |a, b| a + b)
 }
 
-pub fn step<E: PartialEq + Copy>(
+pub fn step<E: Eq + Copy + Hash>(
     e: E,
     p: &Particle,
     h: f64,
@@ -74,7 +64,7 @@ mod tests {
     fn test_kernel() {
         let p1 = vec![0.0, 0.0].into();
         let p2 = vec![3.0, 3.0].into();
-        let f = contribution((1, &p1), (2, &p2), 6.0);
+        let f = kernel(&p1, &p2, 6.0);
         assert_eq!(f, 0.004420970641441537);
     }
 
@@ -83,9 +73,7 @@ mod tests {
         let p1: Particle = vec![0.0, 0.0].into();
         let p2 = vec![1.0, 1.0].into();
         let p3 = vec![0.0, 1.0].into();
-        let g = Grid {
-            elems: vec![(1, p1.clone()), (2, p2), (3, p3)],
-        };
+        let g = vec![(1, p1.clone()), (2, p2), (3, p3)].into_iter().into();
         assert_eq!(density(1, &p1, &g, 2.0), 0.17407571900676053);
     }
 }
