@@ -10,7 +10,7 @@ pub fn update_grid(
     mut grid: ResMut<GameResource<Grid<Entity>>>,
 ) {
     let particle_iter = particles.iter().map(|(id, comp)| (id, comp.val.clone()));
-    grid.val = Grid::build(particle_iter);
+    grid.val.fill(particle_iter);
 }
 
 pub fn update_particles(

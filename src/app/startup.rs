@@ -49,9 +49,9 @@ pub fn startup(
         };
         commands.spawn(p);
     }
-    commands.insert_resource(GameResource { val: globals });
     commands.insert_resource(GameResource {
-        val: Grid::<Entity>::new(),
+        val: Grid::<Entity>::new(&globals),
     });
+    commands.insert_resource(GameResource { val: globals });
     commands.spawn(Camera2dBundle::default());
 }

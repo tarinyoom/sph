@@ -70,10 +70,17 @@ mod tests {
 
     #[test]
     fn test_density() {
+        let globals = Globals {
+            bounds_min: vec![0.0, 0.0],
+            bounds_max: vec![1.0, 1.0],
+            radius: 0.0, // ignore
+            n: 0,        // ignore
+        };
         let p1: Particle = vec![0.0, 0.0].into();
         let p2 = vec![1.0, 1.0].into();
         let p3 = vec![0.0, 1.0].into();
-        let g = Grid::build(vec![(1, p1.clone()), (2, p2), (3, p3)].into_iter());
+        let mut g = Grid::new(&globals);
+        g.fill(vec![(1, p1.clone()), (2, p2), (3, p3)].into_iter());
         assert_eq!(density(1, &p1, &g, 2.0), 0.17407571900676053);
     }
 }
