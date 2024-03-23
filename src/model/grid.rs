@@ -9,3 +9,11 @@ impl<E> Grid<E> {
         Self { elems: Vec::new() }
     }
 }
+
+impl<E, It: Iterator<Item = (E, Particle)>> From<It> for Grid<E> {
+    fn from(iter: It) -> Self {
+        Self {
+            elems: iter.collect(),
+        }
+    }
+}

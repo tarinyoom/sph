@@ -34,7 +34,7 @@ pub fn startup(
     };
     commands.spawn(bg);
 
-    for _ in 0..64 {
+    for _ in 0..globals.n {
         let p: ParticleBundle = ParticleBundle {
             mesh: meshes.add(shape::Circle::new(p_vz_sz).into()).into(),
             material: materials.add(ColorMaterial::from(Color::TURQUOISE)),
