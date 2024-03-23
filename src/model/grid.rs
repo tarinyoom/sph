@@ -17,22 +17,20 @@ impl<E: Eq + Hash + Copy> Grid<E> {
         }
     }
 
-    pub fn neighbors(&self, e: E) -> Vec<&Particle> {
-        self.elems
-            .iter()
-            .filter(|e_| **e_ != e)
-            .map(|e| self.map.get(e).unwrap())
-            .collect()
-    }
-}
-
-impl<E: Eq + Hash + Copy, It: Iterator<Item = (E, Particle)>> From<It> for Grid<E> {
-    fn from(iter: It) -> Self {
+    pub fn build<It: Iterator<Item = (E, Particle)>>(iter: It) -> Self {
         let map: FxHashMap<E, Particle> = iter.collect();
         let elems = map.iter().map(|(e, _)| *e).collect();
         Self {
             elems: elems,
             map: map,
         }
+    }
+
+    pub fn neighbors(&self, e: E) -> Vec<&Particle> {
+        self.elems
+            .iter()
+            .filter(|e_| **e_ != e)
+            .map(|e| self.map.get(e).unwrap())
+            .collect()
     }
 }

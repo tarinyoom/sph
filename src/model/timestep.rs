@@ -73,7 +73,7 @@ mod tests {
         let p1: Particle = vec![0.0, 0.0].into();
         let p2 = vec![1.0, 1.0].into();
         let p3 = vec![0.0, 1.0].into();
-        let g = vec![(1, p1.clone()), (2, p2), (3, p3)].into_iter().into();
+        let g = Grid::build(vec![(1, p1.clone()), (2, p2), (3, p3)].into_iter());
         assert_eq!(density(1, &p1, &g, 2.0), 0.17407571900676053);
     }
 }
