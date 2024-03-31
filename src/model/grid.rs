@@ -19,7 +19,7 @@ impl<E: Eq + Hash + Copy> Grid<E> {
         let sz = izip!(&g.bounds_min, &g.bounds_max).map(|(min, max)| (max - min));
         let n_cells: Vec<usize> = sz
             .clone()
-            .map(|len| f64::floor(len / g.radius) as usize)
+            .map(|len| f64::floor(len / g.radius).max(1.0) as usize)
             .collect();
         let cells = vec![vec![]; n_cells.iter().fold(1, |a, b| a * b)];
         let cell_dims = izip!(sz, &n_cells).map(|(a, b)| a / *b as f64).collect();
@@ -36,10 +36,13 @@ impl<E: Eq + Hash + Copy> Grid<E> {
     }
 
     fn set_neighbor_offsets(&mut self) {
-        self.neighbor_offsets = calculate_neighbor_idxs(self.anchor.len())
+        let mut neighbors: Vec<i32> = calculate_neighbor_idxs(self.anchor.len())
             .into_iter()
             .map(|c| self.flatten(c))
             .collect();
+        neighbors.sort();
+        neighbors.dedup();
+        self.neighbor_offsets = neighbors;
     }
 
     fn flatten(&self, coords: Vec<i32>) -> i32 {
@@ -181,6 +184,6 @@ mod tests {
     #[test]
     fn test_neighbor_offsets() {
         let g = example_grid();
-        assert_eq!(g.neighbor_offsets, vec![-8, -1, 6, -7, 0, 7, -6, 1, 8]);
+        assert_eq!(g.neighbor_offsets, vec![-8, -7, -6, -1, 0, 1, 6, 7, 8]);
     }
 }

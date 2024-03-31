@@ -73,7 +73,7 @@ mod tests {
         let globals = Globals {
             bounds_min: vec![0.0, 0.0],
             bounds_max: vec![1.0, 1.0],
-            radius: 0.0, // ignore
+            radius: 2.0, // ignore
             n: 0,        // ignore
         };
         let p1: Particle = vec![0.0, 0.0].into();
