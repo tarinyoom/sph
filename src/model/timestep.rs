@@ -69,18 +69,37 @@ mod tests {
     }
 
     #[test]
-    fn test_density() {
+    fn test_density_large_radius() {
+        let r = 2.0;
         let globals = Globals {
             bounds_min: vec![0.0, 0.0],
             bounds_max: vec![1.0, 1.0],
-            radius: 2.0, // ignore
-            n: 0,        // ignore
+            radius: r,
+            n: 0, // ignore
         };
         let p1: Particle = vec![0.0, 0.0].into();
         let p2 = vec![1.0, 1.0].into();
         let p3 = vec![0.0, 1.0].into();
         let mut g = Grid::new(&globals);
         g.fill(vec![(1, p1.clone()), (2, p2), (3, p3)].into_iter());
-        assert_eq!(density(1, &p1, &g, 2.0), 0.17407571900676053);
+        assert_eq!(density(1, &p1, &g, r), 0.17407571900676053);
+    }
+
+    #[test]
+    fn test_density_small_radius() {
+        let r = 0.3;
+        let globals = Globals {
+            bounds_min: vec![0.0, 0.0],
+            bounds_max: vec![1.0, 1.0],
+            radius: r,
+            n: 0,
+        };
+        let p1: Particle = vec![0.1, 0.1].into();
+        let p2 = vec![0.1, 0.3].into();
+        let p3 = vec![0.0, 0.0].into();
+        let p4 = vec![0.5, 0.5].into(); // in grid range, outside radius
+        let mut g = Grid::new(&globals);
+        g.fill(vec![(1, p1.clone()), (2, p2), (3, p3), (4, p4)].into_iter());
+        assert_eq!(density(1, &p1, &g, r), 9.082092774516939);
     }
 }
