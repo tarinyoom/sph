@@ -50,9 +50,10 @@ pub fn update_transforms(
     for (mut transform, color, p) in &mut particles {
         transform.translation = unwrap(&p.val);
         let color_mat = materials.get_mut(&*color).unwrap();
-        let n = globals.val.n as f32;
-        let mean = n / area(&globals.val);
-        let stdev = f32::sqrt(n) / 40000.0;
+        let n = (globals.val.n - 1) as f32;
+        let domain_size = area(&globals.val);
+        let mean = n / domain_size;
+        let stdev = f32::sqrt(n) / domain_size;
         color_mat.color = make_color(p.val.density as f32, mean, stdev);
     }
 }

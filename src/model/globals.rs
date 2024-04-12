@@ -10,7 +10,7 @@ impl Default for Globals {
         Self {
             bounds_min: vec![-500.0, -250.0],
             bounds_max: vec![500.0, 250.0],
-            radius: 75.0,
+            radius: 25.0,
             n: 1024,
         }
     }

@@ -24,11 +24,14 @@ fn l2(u: &Vec<f64>, v: &Vec<f64>) -> f64 {
         .sum()
 }
 
+/// Kernel should vanish when particles have distance r,
+/// and should have total volume 1.
 fn kernel(a: &Particle, b: &Particle, r: f64) -> f64 {
     let d2 = l2(&a.position, &b.position);
-    let volume = PI * r.powf(8.0) / 4.0;
-    let value = (r * r - d2).max(0.0);
-    value * value * value / volume
+    let c = (r * r - d2).max(0.0);
+    let numerator = 4.0 * c * c * c;
+    let denominator = PI * r.powf(8.0);
+    numerator / denominator
 }
 
 fn density<E: Eq + Copy + Hash>(e: E, p: &Particle, grid: &Grid<E>, r: f64) -> f64 {
