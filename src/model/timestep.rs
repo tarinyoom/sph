@@ -1,4 +1,4 @@
-use std::f64::consts::PI;
+use std::{f64::consts::PI, hash::Hash};
 
 use itertools::izip;
 
@@ -24,31 +24,31 @@ fn l2(u: &Vec<f64>, v: &Vec<f64>) -> f64 {
         .sum()
 }
 
-fn contribution<E: PartialEq>(a: (E, &Particle), b: (E, &Particle), r: f64) -> f64 {
-    let (e_a, p_a) = a;
-    let (e_b, p_b) = b;
-    if e_a != e_b {
-        let d2 = l2(&p_a.position, &p_b.position);
-        let volume = PI * r.powf(8.0) / 4.0;
-        let value = (r * r - d2).max(0.0);
-        value * value * value / volume
-    } else {
-        0.0
-    }
+/// Kernel should vanish when particles have distance r,
+/// and should have total volume 1.
+fn kernel(a: &Particle, b: &Particle, r: f64) -> f64 {
+    let d2 = l2(&a.position, &b.position);
+    let c = (r * r - d2).max(0.0);
+    let numerator = 4.0 * c * c * c;
+    let denominator = PI * r.powf(8.0);
+    numerator / denominator
 }
 
-pub fn step<E: PartialEq + Copy>(
+fn density<E: Eq + Copy + Hash>(e: E, p: &Particle, grid: &Grid<E>, r: f64) -> f64 {
+    grid.neighbors(e)
+        .iter()
+        .map(|p_| kernel(p, p_, r))
+        .fold(0.0, |a, b| a + b)
+}
+
+pub fn step<E: Eq + Copy + Hash>(
     e: E,
     p: &Particle,
     h: f64,
     g: &Globals,
     grid: &Grid<E>,
 ) -> Particle {
-    let rho = grid
-        .elems
-        .iter()
-        .map(|(e_, p_)| contribution((e, p), (*e_, p_), g.radius))
-        .fold(0.0, |a, b| a + b);
+    let rho = density(e, p, grid, g.radius);
     let (x, v) = izip!(&p.position, &p.velocity, &g.bounds_min, &g.bounds_max)
         .map(|(x, v, min, max)| step_1d(*x, *v, *min, *max, h))
         .unzip();
@@ -65,17 +65,44 @@ mod tests {
 
     #[test]
     fn test_kernel() {
-        let p1 = Particle {
-            velocity: vec![10.0, 10.0],
-            position: vec![0.0, 0.0],
-            density: 0.0,
-        };
-        let p2 = Particle {
-            velocity: vec![10.0, 10.0],
-            position: vec![3.0, 3.0],
-            density: 0.0,
-        };
-        let f = contribution::<u32>((1, &p1), (2, &p2), 6.0);
+        let p1 = vec![0.0, 0.0].into();
+        let p2 = vec![3.0, 3.0].into();
+        let f = kernel(&p1, &p2, 6.0);
         assert_eq!(f, 0.004420970641441537);
+    }
+
+    #[test]
+    fn test_density_large_radius() {
+        let r = 2.0;
+        let globals = Globals {
+            bounds_min: vec![0.0, 0.0],
+            bounds_max: vec![1.0, 1.0],
+            radius: r,
+            n: 0, // ignore
+        };
+        let p1: Particle = vec![0.0, 0.0].into();
+        let p2 = vec![1.0, 1.0].into();
+        let p3 = vec![0.0, 1.0].into();
+        let mut g = Grid::new(&globals);
+        g.fill(vec![(1, p1.clone()), (2, p2), (3, p3)].into_iter());
+        assert_eq!(density(1, &p1, &g, r), 0.17407571900676053);
+    }
+
+    #[test]
+    fn test_density_small_radius() {
+        let r = 0.3;
+        let globals = Globals {
+            bounds_min: vec![0.0, 0.0],
+            bounds_max: vec![1.0, 1.0],
+            radius: r,
+            n: 0,
+        };
+        let p1: Particle = vec![0.1, 0.1].into();
+        let p2 = vec![0.1, 0.3].into();
+        let p3 = vec![0.0, 0.0].into();
+        let p4 = vec![0.5, 0.5].into(); // in grid range, outside radius
+        let mut g = Grid::new(&globals);
+        g.fill(vec![(1, p1.clone()), (2, p2), (3, p3), (4, p4)].into_iter());
+        assert_eq!(density(1, &p1, &g, r), 9.082092774516939);
     }
 }
